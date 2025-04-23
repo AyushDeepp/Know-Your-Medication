@@ -37,10 +37,16 @@ module.exports = {
   experiments: {
     typedRoutes: true
   },
+  updates: {
+    url: "https://u.expo.dev/3fd640ee-563d-4a0f-a13c-b86c0371bff6"
+  },
+  runtimeVersion: {
+    policy: "appVersion"
+  },
   extra: {
     apiUrl: process.env.EXPO_PUBLIC_API_URL || "https://know-your-medication-api.onrender.com",
     eas: {
-      projectId: "your-expo-project-id"
+      projectId: "3fd640ee-563d-4a0f-a13c-b86c0371bff6"
     }
   }
 }; 
