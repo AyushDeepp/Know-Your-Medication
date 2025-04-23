@@ -25,12 +25,12 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-asc-app-id",
-        "appleTeamId": "your-team-id"
+        "appleId": "REPLACE_WITH_YOUR_APPLE_ID",
+        "ascAppId": "REPLACE_WITH_YOUR_ASC_APP_ID",
+        "appleTeamId": "REPLACE_WITH_YOUR_TEAM_ID"
       },
       "android": {
-        "serviceAccountKeyPath": "./path/to/service-account.json"
+        "serviceAccountKeyPath": "./path/to/your-service-account.json"
       }
     }
   }

@@ -19,22 +19,33 @@ const uploadsDir = path.join(__dirname, '../uploads');
 const reportsDir = path.join(uploadsDir, 'reports');
 const profilesDir = path.join(uploadsDir, 'profiles');
 
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir);
-}
-
-if (!fs.existsSync(reportsDir)) {
-  fs.mkdirSync(reportsDir);
-}
-
-if (!fs.existsSync(profilesDir)) {
-  fs.mkdirSync(profilesDir);
+// Create directories if they don't exist
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+  
+  if (!fs.existsSync(reportsDir)) {
+    fs.mkdirSync(reportsDir, { recursive: true });
+  }
+  
+  if (!fs.existsSync(profilesDir)) {
+    fs.mkdirSync(profilesDir, { recursive: true });
+  }
+} catch (err) {
+  console.error('Error creating directories:', err);
 }
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static('uploads'));
+
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -53,4 +64,11 @@ mongoose.connect(process.env.MONGODB_URI)
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
-  }); 
+    process.exit(1);
+  });
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ error: 'Something went wrong!' });
+}); 

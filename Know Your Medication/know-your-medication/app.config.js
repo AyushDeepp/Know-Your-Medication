@@ -4,7 +4,7 @@ module.exports = {
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
-  scheme: "myapp",
+  scheme: "knowyourmedication",
   userInterfaceStyle: "automatic",
   splash: {
     image: "./assets/images/splash-icon.png",
@@ -21,7 +21,12 @@ module.exports = {
       foregroundImage: "./assets/images/adaptive-icon.png",
       backgroundColor: "#ffffff"
     },
-    package: "com.yourcompany.knowyourmedication"
+    package: "com.yourcompany.knowyourmedication",
+    permissions: [
+      "CAMERA",
+      "READ_EXTERNAL_STORAGE",
+      "WRITE_EXTERNAL_STORAGE"
+    ]
   },
   web: {
     bundler: "metro",
@@ -33,6 +38,9 @@ module.exports = {
     typedRoutes: true
   },
   extra: {
-    apiUrl: process.env.EXPO_PUBLIC_API_URL
+    apiUrl: process.env.EXPO_PUBLIC_API_URL || "https://know-your-medication-api.onrender.com",
+    eas: {
+      projectId: "your-expo-project-id"
+    }
   }
 }; 
