@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API base URL configuration
 // This allows different envs to use different APIs
@@ -32,10 +33,12 @@ api.interceptors.request.use(
 // Helper function to get token from secure storage
 const getTokenFromStorage = async () => {
   try {
-    // Implementation depends on your storage method
-    // Example using expo-secure-store:
-    // const token = await SecureStore.getItemAsync('authToken');
-    // return token;
+    // Get auth data from AsyncStorage
+    const authData = await AsyncStorage.getItem('auth-storage');
+    if (authData) {
+      const { state } = JSON.parse(authData);
+      return state?.token;
+    }
     return null;
   } catch (error) {
     console.error('Error getting token', error);
