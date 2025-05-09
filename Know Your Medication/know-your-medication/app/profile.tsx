@@ -1024,6 +1024,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   logoutButton: {
+    ...FONTS.textMedium,
     marginLeft: 'auto',
   },
   scrollView: {
@@ -1163,7 +1164,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   logoutText: {
-    ...FONTS.textSmall,
+    ...FONTS.textMedium,
     color: COLORS.error,
     fontWeight: 'bold',
   },
