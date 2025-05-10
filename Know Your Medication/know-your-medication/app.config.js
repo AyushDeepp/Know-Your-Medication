@@ -44,7 +44,7 @@ module.exports = {
     policy: "appVersion"
   },
   extra: {
-    apiUrl: process.env.EXPO_PUBLIC_API_URL || "https://cuh-healtcare-production.up.railway.app",
+    apiUrl: process.env.EXPO_PUBLIC_API_URL || "https://know-your-medication-api.onrender.com",
     eas: {
       projectId: "3fd640ee-563d-4a0f-a13c-b86c0371bff6"
     }
