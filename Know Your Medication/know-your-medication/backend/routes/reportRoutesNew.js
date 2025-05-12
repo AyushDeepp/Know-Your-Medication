@@ -6,6 +6,8 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const reportController = require('../controllers/reportController');
+const { reportUpload, handleUploadError } = require('../middleware/upload');
 
 // Make sure the uploads directory exists
 const uploadsDir = path.join(__dirname, '../../uploads');
@@ -277,80 +279,30 @@ router.get('/download/:reportId', async (req, res) => {
   }
 });
 
-// Add POST endpoint to handle file uploads
-router.post('/', auth, authorize('doctor', 'admin'), checkDoctorApproval, upload.single('file'), async (req, res) => {
-  try {
-    // Get data from request
-    const { patientId, title, reportType } = req.body;
-    const doctorId = req.user._id;
-    
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-    
-    // Determine file type
-    const fileType = req.file.mimetype.includes('pdf') ? 'pdf' : 'image';
-    
-    // Get uploader information
-    const uploader = await mongoose.model('User').findById(doctorId);
-    const uploaderName = uploader ? uploader.name : 'Unknown';
-    
-    // Create a new report document
-    const report = new Report({
-      doctorId,
-      patientId,
-      title,
-      reportType,
-      fileType,
-      fileName: req.file.filename,
-      filePath: req.file.path,
-      fileSize: req.file.size,
-      mimeType: req.file.mimetype,
-      uploadedBy: uploaderName,
-      reportId: 'REP-' + Math.random().toString(36).substring(2, 10).toUpperCase()
-    });
-    
-    // Save the report to the database
-    await report.save();
-    
-    res.status(201).json({
-      success: true,
-      report: {
-        _id: report._id,
-        title: report.title,
-        reportType: report.reportType,
-        createdAt: report.createdAt,
-        reportId: report.reportId,
-        uploadedBy: report.uploadedBy
-      }
-    });
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+// Protected routes with error handling
+router.post('/', 
+  auth, 
+  authorize('patient'), 
+  reportUpload.single('reportFile'),
+  handleUploadError,
+  reportController.uploadReport
+);
 
-// Add a new route for admins to get reports uploaded by a specific doctor
-router.get('/doctor/:doctorId', auth, authorize('admin'), async (req, res) => {
-  try {
-    const { doctorId } = req.params;
-    
-    // Check if the doctor exists
-    const doctor = await mongoose.model('User').findById(doctorId);
-    if (!doctor || doctor.role !== 'doctor') {
-      return res.status(404).json({ message: 'Doctor not found' });
-    }
-    
-    // Find all reports uploaded by the specific doctor
-    const reports = await Report.find({ doctorId })
-      .populate('patientId', 'name')
-      .sort({ createdAt: -1 });
-    
-    res.status(200).json(reports);
-  } catch (error) {
-    console.error('Error fetching doctor reports:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+router.get('/', auth, reportController.getReports);
+router.get('/:reportId', auth, reportController.getReportById);
+
+router.put('/:reportId', 
+  auth, 
+  authorize('patient'), 
+  reportUpload.single('reportFile'),
+  handleUploadError,
+  reportController.updateReport
+);
+
+router.delete('/:reportId', auth, authorize('patient'), reportController.deleteReport);
+
+// View and download routes
+router.get('/view/:id', auth, reportController.viewReport);
+router.get('/download/:id', auth, reportController.downloadReport);
 
 module.exports = router; 

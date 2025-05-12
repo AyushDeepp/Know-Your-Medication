@@ -1,11 +1,6 @@
 const mongoose = require('mongoose');
 
 const reportSchema = new mongoose.Schema({
-  doctorId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
   patientId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -42,20 +37,17 @@ const reportSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  reportId: {
-    type: String,
-    default: function() {
-      return 'REP-' + Math.random().toString(36).substring(2, 10).toUpperCase();
-    }
-  },
   uploadedBy: {
     type: String,
-    trim: true
+    required: true
+  },
+  reportId: {
+    type: String,
+    required: true,
+    unique: true
   }
 }, {
   timestamps: true
 });
 
-const Report = mongoose.model('Report', reportSchema);
-
-module.exports = Report; 
+module.exports = mongoose.model('Report', reportSchema); 

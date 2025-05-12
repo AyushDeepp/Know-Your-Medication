@@ -1,68 +1,65 @@
+const { uploadProfile, uploadReport } = require('../config/cloudinary');
 const multer = require('multer');
-const path = require('path');
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function(req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+// File size limits (in bytes)
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB for reports
+const MAX_PROFILE_SIZE = 5 * 1024 * 1024; // 5MB for profile pictures
+
+// File type validation
+const validateFileType = (req, file, cb) => {
+  // For profile pictures
+  if (req.path.includes('profile')) {
+    if (!file.mimetype.match(/^image\/(jpeg|jpg|png)$/)) {
+      return cb(new Error('Only JPEG, JPG, and PNG images are allowed for profile pictures'));
+    }
   }
-});
-
-// Profile picture storage
-const profileStorage = multer.diskStorage({
-  destination: function(req, file, cb) {
-    cb(null, 'uploads/profiles/');
-  },
-  filename: function(req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
+  // For reports
+  else {
+    if (!file.mimetype.match(/^image\/(jpeg|jpg|png)$|^application\/pdf$/)) {
+      return cb(new Error('Only JPEG, JPG, PNG images and PDF files are allowed for reports'));
+    }
   }
-});
-
-// Check file type
-const fileFilter = (req, file, cb) => {
-  // Allowed file types for reports
-  const allowedFileTypes = /jpeg|jpg|png|gif|pdf/;
-  const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedFileTypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image and PDF files are allowed'));
-  }
+  cb(null, true);
 };
 
-// Image-only file filter for profile pictures
-const imageFileFilter = (req, file, cb) => {
-  // Allowed image types for profile pictures
-  const allowedFileTypes = /jpeg|jpg|png|gif/;
-  const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedFileTypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed for profile pictures'));
+// File size validation
+const validateFileSize = (req, file, cb) => {
+  const maxSize = req.path.includes('profile') ? MAX_PROFILE_SIZE : MAX_FILE_SIZE;
+  if (file.size > maxSize) {
+    return cb(new Error(`File size must be less than ${maxSize / (1024 * 1024)}MB`));
   }
+  cb(null, true);
 };
 
-// Initialize Multer
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max file size
-  fileFilter: fileFilter
-});
-
-// Initialize Multer for profile pictures
+// Create multer instances with validation
 const profileUpload = multer({
-  storage: profileStorage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max file size
-  fileFilter: imageFileFilter
+  storage: uploadProfile.storage,
+  fileFilter: validateFileType,
+  limits: { fileSize: MAX_PROFILE_SIZE }
 });
 
-module.exports = { upload, profileUpload }; 
+const reportUpload = multer({
+  storage: uploadReport.storage,
+  fileFilter: validateFileType,
+  limits: { fileSize: MAX_FILE_SIZE }
+});
+
+// Error handling middleware
+const handleUploadError = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: 'File too large' });
+    }
+    return res.status(400).json({ message: err.message });
+  }
+  if (err) {
+    return res.status(400).json({ message: err.message });
+  }
+  next();
+};
+
+module.exports = {
+  profileUpload,
+  reportUpload,
+  handleUploadError
+}; 
