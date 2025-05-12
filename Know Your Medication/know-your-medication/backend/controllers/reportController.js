@@ -5,15 +5,15 @@ const fs = require('fs');
 const { cloudinary } = require('../config/cloudinary');
 
 // Upload a new report
-exports.uploadReport = async (req, res) => {
+const uploadReport = async (req, res) => {
   try {
     const { title, reportType } = req.body;
     const patientId = req.user._id;
-
+    
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-
+    
     // Create a new report with Cloudinary URL
     const report = new Report({
       patientId,
@@ -27,9 +27,9 @@ exports.uploadReport = async (req, res) => {
       uploadedBy: req.user.name,
       reportId: 'REP-' + Math.random().toString(36).substring(2, 10).toUpperCase()
     });
-
+    
     await report.save();
-
+    
     res.status(201).json({
       success: true,
       report: {
@@ -49,7 +49,7 @@ exports.uploadReport = async (req, res) => {
 };
 
 // Get all reports for a user
-exports.getReports = async (req, res) => {
+const getReports = async (req, res) => {
   try {
     let reports;
     if (req.user.role === 'patient') {
@@ -75,7 +75,7 @@ exports.getReports = async (req, res) => {
 };
 
 // Get a single report
-exports.getReportById = async (req, res) => {
+const getReportById = async (req, res) => {
   try {
     const report = await Report.findById(req.params.reportId)
       .populate('patientId', 'name')
@@ -98,7 +98,7 @@ exports.getReportById = async (req, res) => {
 };
 
 // Update a report
-exports.updateReport = async (req, res) => {
+const updateReport = async (req, res) => {
   try {
     const { title, reportType } = req.body;
     const report = await Report.findById(req.params.reportId);
@@ -147,7 +147,7 @@ exports.updateReport = async (req, res) => {
 };
 
 // Delete a report
-exports.deleteReport = async (req, res) => {
+const deleteReport = async (req, res) => {
   try {
     const report = await Report.findById(req.params.reportId);
 
