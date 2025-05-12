@@ -282,7 +282,7 @@ router.get('/download/:reportId', async (req, res) => {
 // Protected routes with error handling
 router.post('/', 
   auth, 
-  authorize('patient'), 
+  authorize('patient', 'doctor', 'admin'), 
   reportUpload.single('reportFile'),
   handleUploadError,
   reportController.uploadReport
@@ -293,13 +293,17 @@ router.get('/:reportId', auth, reportController.getReportById);
 
 router.put('/:reportId', 
   auth, 
-  authorize('patient'), 
+  authorize('patient', 'doctor', 'admin'), 
   reportUpload.single('reportFile'),
   handleUploadError,
   reportController.updateReport
 );
 
-router.delete('/:reportId', auth, authorize('patient'), reportController.deleteReport);
+router.delete('/:reportId', 
+  auth, 
+  authorize('patient', 'doctor', 'admin'), 
+  reportController.deleteReport
+);
 
 // View and download routes
 router.get('/view/:id', auth, reportController.viewReport);

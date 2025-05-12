@@ -7,16 +7,28 @@ const { cloudinary } = require('../config/cloudinary');
 // Upload a new report
 const uploadReport = async (req, res) => {
   try {
-    const { title, reportType } = req.body;
-    const patientId = req.user._id;
+    const { title, reportType, patientId: providedPatientId } = req.body;
+    const userId = req.user._id;
     
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Determine the actual patient ID based on role
+    let patientId;
+    if (req.user.role === 'patient') {
+      patientId = userId;
+    } else if (req.user.role === 'doctor' || req.user.role === 'admin') {
+      if (!providedPatientId) {
+        return res.status(400).json({ message: 'Patient ID is required for doctor/admin uploads' });
+      }
+      patientId = providedPatientId;
     }
     
     // Create a new report with Cloudinary URL
     const report = new Report({
       patientId,
+      doctorId: req.user.role === 'doctor' ? userId : null,
       title,
       reportType,
       fileType: req.file.mimetype.includes('pdf') ? 'pdf' : 'image',
