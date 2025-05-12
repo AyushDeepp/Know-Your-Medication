@@ -283,7 +283,7 @@ router.get('/download/:reportId', async (req, res) => {
 router.post('/', 
   auth, 
   authorize('patient', 'doctor', 'admin'), 
-  reportUpload.single('reportFile'),
+  reportUpload.single('file'),
   handleUploadError,
   reportController.uploadReport
 );
@@ -294,7 +294,7 @@ router.get('/:reportId', auth, reportController.getReportById);
 router.put('/:reportId', 
   auth, 
   authorize('patient', 'doctor', 'admin'), 
-  reportUpload.single('reportFile'),
+  reportUpload.single('file'),
   handleUploadError,
   reportController.updateReport
 );

@@ -24,6 +24,14 @@ const uploadReport = async (req, res) => {
       }
       patientId = providedPatientId;
     }
+
+    // Log the file information for debugging
+    console.log('File information:', {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      path: req.file.path
+    });
     
     // Create a new report with Cloudinary URL
     const report = new Report({
