@@ -288,9 +288,13 @@ router.post('/',
   reportController.uploadReport
 );
 
+// Get all reports
 router.get('/', auth, reportController.getReports);
+
+// Get a single report
 router.get('/:reportId', auth, reportController.getReportById);
 
+// Update a report
 router.put('/:reportId', 
   auth, 
   authorize('patient', 'doctor', 'admin'), 
@@ -299,11 +303,18 @@ router.put('/:reportId',
   reportController.updateReport
 );
 
+// Delete a report
 router.delete('/:reportId', 
   auth, 
   authorize('patient', 'doctor', 'admin'), 
   reportController.deleteReport
 );
+
+// Get patient's reports
+router.get('/patient/reports', auth, authorize('patient'), reportController.getPatientReports);
+
+// Get doctor's uploaded reports
+router.get('/doctor/reports', auth, authorize('doctor'), reportController.getDoctorReports);
 
 // View and download routes
 router.get('/view/:id', auth, reportController.viewReport);

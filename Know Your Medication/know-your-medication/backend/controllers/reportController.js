@@ -75,6 +75,7 @@ const getReports = async (req, res) => {
     if (req.user.role === 'patient') {
       reports = await Report.find({ patientId: req.user._id })
         .populate('patientId', 'name')
+        .populate('doctorId', 'name')
         .sort({ createdAt: -1 });
     } else if (req.user.role === 'doctor') {
       reports = await Report.find({ doctorId: req.user._id })

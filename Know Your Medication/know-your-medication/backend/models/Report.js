@@ -6,6 +6,11 @@ const reportSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  doctorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: false // Making it optional since patients can upload their own reports
+  },
   title: {
     type: String,
     required: true,

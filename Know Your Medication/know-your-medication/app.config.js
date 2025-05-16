@@ -44,8 +44,8 @@ module.exports = {
     policy: "appVersion"
   },
   extra: {
-    //apiUrl: process.env.EXPO_PUBLIC_API_URL || "https://cuh-healthcare.up.railway.app",
-    apiUrl: process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000",
+    apiUrl: process.env.EXPO_PUBLIC_API_URL || "https://cuh-healthcare.up.railway.app",
+    //apiUrl: process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000",
     eas: {
       projectId: "3fd640ee-563d-4a0f-a13c-b86c0371bff6"
     }
